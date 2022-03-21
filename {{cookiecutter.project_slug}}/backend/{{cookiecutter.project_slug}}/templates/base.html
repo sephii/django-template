@@ -1,0 +1,18 @@
+{% load static %}
+{% load django_vite %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title></title>
+
+    {% vite_hmr_client %}
+  </head>
+  <body>
+    {% block body %}
+    It works!
+    {% endblock %}
+
+    {% vite_asset 'js/index.js' %}
+  </body>
+</html>

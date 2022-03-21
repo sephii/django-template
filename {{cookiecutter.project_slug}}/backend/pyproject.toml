@@ -1,0 +1,46 @@
+[tool.poetry]
+name = "{{ cookiecutter.project_slug }}"
+version = "0.1.0"
+description = ""
+authors = ["{{ cookiecutter.author }}"]
+packages = [
+  { include = "{{ cookiecutter.project_slug }}" },
+]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+{% if cookiecutter.use_wagtail %}wagtail = "^2.16.1"{% endif %}
+django-environ = "^0.8.1"
+psycopg2-binary = "^2.9.2"
+gunicorn = "^20.1.0"
+dj-database-url = "^0.5.0"
+django-vite = "^2.0.2"
+
+[tool.poetry.dev-dependencies]
+django-extensions = "^3.1.3"
+django-debug-toolbar = "^3.2.2"
+pytest = "^7.1.1"
+pytest-django = "^4.5.2"
+ipython = "^8.1.1"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "{{ cookiecutter.project_slug }}.config.settings.test"
+python_files = ["test*.py", "tests.py", "tests/*.py"]
+norecursedirs = ["node_modules", ".git"]
+addopts = "--cov-report=term --cov={{ cookiecutter.project_slug }} --no-cov-on-fail"
+
+[tool.isort]
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+known_first_party = ["{{ cookiecutter.project_slug }}"]
+known_django = ["django"]
+default_section = "THIRDPARTY"
+line_length = 88
+sections = ["FUTURE", "STDLIB", "DJANGO", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+skip = ["node_modules", "migrations"]

@@ -2,25 +2,8 @@ __pycache__
 *.pyc
 /.coverage
 /.pytest_cache
-
-/envdir/*
-!/envdir/.gitkeep
-/.tox
-
+/.envrc.local
+/frontend/.vite
 /node_modules
 /static/dist/*
-!/static/dist/.gitkeep
-
-{%- if cookiecutter.virtualization_tool == 'drifter' %}
-
-vagrant_ansible_inventory_default
-.vagrant
-/virtualization/playbook.retry
-{%- endif %}
-
-{%- if cookiecutter.virtualization_tool == 'docker' %}
-
-/docker-compose.override.yml
-/venv
-/.env
-{%- endif %}
+/result

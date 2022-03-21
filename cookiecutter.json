@@ -1,11 +1,11 @@
 {
   "project_name": "My Project",
   "project_slug": "{{ cookiecutter.project_name|lower|replace(' ', '_')|replace('-', '_') }}",
-  "virtualization_tool": ["docker", "drifter"],
   "override_user_model": "y",
-  "use_djangocms": "n",
+  "use_wagtail": "n",
   "language_list":  "de,en,fr,it",
   "default_language": "en",
+  "author": "Jane Doe <jane.doe@example.com>",
   "_copy_without_render": [
     "*.html"
   ]

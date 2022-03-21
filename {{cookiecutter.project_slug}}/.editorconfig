@@ -9,8 +9,9 @@ trim_trailing_whitespace = true
 insert_final_newline = true
 max_line_length = 120
 
-[*.{py,php,md}]
+[*.py]
 indent_size = 4
+max_line_length = 88
 
 [*.md]
 trim_trailing_whitespace = false
