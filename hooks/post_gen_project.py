@@ -55,7 +55,7 @@ def lock_npm():
 
 if __name__ == "__main__":
     if "{{ cookiecutter.override_user_model }}" == "n":
-        shutil.rmtree("{{ cookiecutter.project_slug }}/accounts")
+        shutil.rmtree("backend/{{ cookiecutter.project_slug }}/accounts")
 
     generate_blank_locale_files()
     lock_poetry()

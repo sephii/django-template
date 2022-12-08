@@ -1,7 +1,7 @@
 {
   description = "{{ cookiecutter.project_name }}";
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-21.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.11";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
@@ -12,13 +12,20 @@
           inherit system;
           overlays = [ overlay ];
         };
+
+        # The overlay allows to add this package to the `pkgs` of another flake like so:
+        # pkgs = import nixpkgs {
+        #   overlays = [ thisFlake.overlay ];
+        # };
         overlay = (final: prev: {
           {{ cookiecutter.project_slug }} = (final.callPackage ./. { }) // {
-            django = final.callPackage ./backend { };
+            backend = final.callPackage ./backend { };
             frontend = final.callPackage ./frontend { };
           };
         });
-        mergeEnvs = pkgs: envs:
+
+        # Create an environment with all inputs from the given environments
+        mergeEnvs = envs:
           pkgs.mkShell (builtins.foldl' (a: v: {
             buildInputs = a.buildInputs ++ v.buildInputs;
             nativeBuildInputs = a.nativeBuildInputs ++ v.nativeBuildInputs;
@@ -28,21 +35,40 @@
               ++ v.propagatedNativeBuildInputs;
             shellHook = a.shellHook + "\n" + v.shellHook;
           }) (pkgs.mkShell { }) envs);
+
+        # Convert a derivation to the format expected by flakes apps
+        mkApp = drv: {
+          type = "app";
+          program = "${drv}/bin/${drv.name}";
+        };
       in rec {
-        inherit overlay;
-        apps = { dev = pkgs.{{ cookiecutter.project_slug }}.dev; };
-        defaultApp = apps.dev;
-        packages = {
-          server = pkgs.{{ cookiecutter.project_slug }}.django.server;
-          server-static = pkgs.{{ cookiecutter.project_slug }}.django.static;
+        overlays.default = overlay;
+
+        apps.default = mkApp pkgs.{{ cookiecutter.project_slug }}.dev;
+
+        packages = rec {
+          default = server;
+          server = pkgs.{{ cookiecutter.project_slug }}.backend.server;
+          server-static = pkgs.{{ cookiecutter.project_slug }}.backend.static;
           static = pkgs.{{ cookiecutter.project_slug }}.frontend.static;
         };
-        defaultPackage = pkgs.{{ cookiecutter.project_slug }}.django.server;
+
         checks = packages;
-        devShell = mergeEnvs pkgs (with devShells; [ frontend django ]);
-        devShells = {
+
+        devShells = rec {
+          default = mergeEnvs [
+            frontend
+            backend
+            (pkgs.mkShell {
+              packages = with pkgs.{{ cookiecutter.project_slug }}; [
+                dev
+                server-back
+                server-front
+              ];
+            })
+          ];
           frontend = pkgs.{{ cookiecutter.project_slug }}.frontend.shell;
-          django = pkgs.{{ cookiecutter.project_slug }}.django.shell;
+          backend = pkgs.{{ cookiecutter.project_slug }}.backend.shell;
         };
       });
 }
