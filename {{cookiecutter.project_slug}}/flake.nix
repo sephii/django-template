@@ -38,6 +38,9 @@
             in {
               {{ cookiecutter.project_slug }} = drvWithDeps ./requirements.nix;
               {{ cookiecutter.project_slug }}-dev = drvWithDeps ./requirements_dev.nix;
+
+              # django is still Django 3.x in NixOS 23.05 channel
+              django = python-final.django_4;
             })
             {% elif cookiecutter.packaging == "poetry" %}
             (python-final: python-prev: {
