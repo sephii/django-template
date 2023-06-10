@@ -14,6 +14,11 @@ This is a Django project template preconfigured with:
 * [Wagtail CMS](https://wagtail.org/) (optional)
 * Custom user model (optional)
 
+This template allows you to get a working Django project with a reproducible dev
+setup in 40 seconds! See for yourself:
+
+[![asciicast](https://asciinema.org/a/MKghHwn6URYEGeHm0I3Z1uJqY.svg)](https://asciinema.org/a/MKghHwn6URYEGeHm0I3Z1uJqY)
+
 To create a new project using this template, install [cookiecutter](https://github.com/cookiecutter/cookiecutter), then run:
 
     cookiecutter gh:sephii/django-template
