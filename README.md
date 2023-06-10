@@ -2,15 +2,15 @@
 
 This is a Django project template preconfigured with:
 
-* [Django 4](https://www.djangoproject.com/)
 * Vital dev tools ([django-debug-toolbar](https://github.com/jazzband/django-debug-toolbar/), [django-extensions](https://github.com/django-extensions/django-extensions/))
-* Pre-commit hooks with [ruff](https://github.com/charliermarsh/ruff) & [Black](https://github.com/psf/black)
-* [Pytest](https://docs.pytest.org/) & [pytest-cov](https://pypi.org/project/pytest-cov/)
-* [TailwindCSS](https://tailwindcss.com/)
+* Linting enforced with pre-commit hooks with [ruff](https://github.com/charliermarsh/ruff) & [Black](https://github.com/psf/black)
+* Testing with [pytest](https://docs.pytest.org/) & [pytest-cov](https://pypi.org/project/pytest-cov/)
+* Quick styling with [TailwindCSS](https://tailwindcss.com/)
 * Assets compilation with [Vite](https://vitejs.dev/) (using [django-vite](https://github.com/MrBin99/django-vite))
-* [Direnv](https://direnv.net/) & [Devenv](https://devenv.sh/) integration
-* [Nix](https://nixos.org/) or [Poetry](https://python-poetry.org/) packaging
-* [just](https://just.systems/) for command execution
+* Fast, transparent & reproducible development setup with [Direnv](https://direnv.net/) & [Devenv](https://devenv.sh/)
+* Packaging & dependency management with [Nix](https://nixos.org/) or [Poetry](https://python-poetry.org/)
+* Command execution with [just](https://just.systems/)
+* Mail preview with [Mailhog](https://github.com/mailhog/MailHog)
 * [Wagtail CMS](https://wagtail.org/) (optional)
 * Custom user model (optional)
 
@@ -19,9 +19,20 @@ setup in 40 seconds! See for yourself:
 
 [![asciicast](https://asciinema.org/a/MKghHwn6URYEGeHm0I3Z1uJqY.svg)](https://asciinema.org/a/MKghHwn6URYEGeHm0I3Z1uJqY)
 
-To create a new project using this template, install [cookiecutter](https://github.com/cookiecutter/cookiecutter), then run:
+## Usage
 
-    cookiecutter gh:sephii/django-template
+To create a new project using this template, you will first need to install:
+
+* [cookiecutter](https://github.com/cookiecutter/cookiecutter)
+* [Nix](https://nixos.org/)
+* [Direnv](https://github.com/direnv/direnv)
+* [Devenv](https://devenv.sh/)
+
+Once you have these tools installed, run:
+
+```sh
+cookiecutter gh:sephii/django-template
+```
 
 Make sure to initialize a git repository in your newly created project directory
 (`cd my_project; git init; git add .`), and follow the instructions in the

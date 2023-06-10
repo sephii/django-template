@@ -13,9 +13,9 @@ To get a better idea how the whole thing works, check these files:
 
 ## Running it
 
-To run this project locally, install [Nix](https://nixos.org/) and [devenv](https://devenv.sh/).
+To run this project locally, make sure [Nix](https://nixos.org/), [devenv](https://devenv.sh/) and [direnv](https://github.com/direnv/direnv) are installed.
 
-Then run the project by running:
+Then run `direnv allow` and start the different services by running:
 
 ```sh
 devenv up
@@ -23,8 +23,18 @@ devenv up
 
 In another terminal, run the database migrations:
 
-``` sh
+```sh
 dj migrate
 ```
 
 You should be able to access http://localhost:8000/ !
+
+Note there is no `manage.py` file. All Django management commands must be run using the
+`dj` command (use `dj --help` to see all available commands).
+
+## How to…
+
+### Use the Python debugger
+
+Insert a `breakpoint()` like you’re used to, and then run `overmind c runserver` to
+attach to the runserver process.
