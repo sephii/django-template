@@ -2,7 +2,7 @@
   "name": "{{ cookiecutter.project_slug }}",
   "version": "1.0.0",
   "description": "{{ cookiecutter.project_slug }} website",
-  "author": "{{ cookiecutter.author }}",
+  "author": "{{ cookiecutter.author_name }} <{{ cookiecutter.author_email }}>",
   "license": "private",
   "private": true,
   "scripts": {
@@ -12,9 +12,9 @@
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.0",
     "autoprefixer": "^10.4.0",
-    "vite": "^3.2.5",
+    "vite": "^4.3.9",
     "postcss": "^8.4.19",
-    "tailwindcss": "^3.2.4"
+    "tailwindcss": "^3.3.2"
   },
   "browserslist": [
     "> 0.5%",

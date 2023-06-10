@@ -5,7 +5,9 @@
   "use_wagtail": "n",
   "language_list":  "de,en,fr,it",
   "default_language": "en",
-  "author": "Jane Doe <jane.doe@example.com>",
+  "author_name": "Jane Doe",
+  "author_email": "jane.doe@example.com",
+  "packaging":  ["nix", "poetry"],
   "_copy_without_render": [
     "*.html"
   ]

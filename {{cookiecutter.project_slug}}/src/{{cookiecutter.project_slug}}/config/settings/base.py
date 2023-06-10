@@ -1,16 +1,21 @@
-import os
+import pathlib
 
-import dj_database_url
 from django.utils.translation import gettext_lazy as _
 
-
-from . import get_env_variable
-from .. import get_project_root_path
-
-gettext = lambda s: s
+import environ
 
 # Full filesystem path to the project.
-BASE_DIR = get_project_root_path()
+BASE_DIR = pathlib.Path(__file__).resolve().parent.parent.parent.parent
+
+env = environ.Env(
+    DEBUG=(bool, False),
+    STATIC_URL=(str, "/static/"),
+    MEDIA_URL=(str, "/media/"),
+    EMAIL_HOST=(str, "localhost"),
+    EMAIL_PORT=(int, 25),
+    EMAIL_FROM=(str, "webmaster@localhost"),
+    MEDIA_ROOT=(str, BASE_DIR / "media"),
+)
 
 # Internationalization
 LANGUAGE_CODE = "{{ cookiecutter.default_language }}"
@@ -50,9 +55,9 @@ STATICFILES_FINDERS = (
 # a mode you'd pass directly to os.chmod.
 FILE_UPLOAD_PERMISSIONS = 0o644
 
-ALLOWED_HOSTS = tuple(get_env_variable("ALLOWED_HOSTS", "").splitlines())
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
 
-SECRET_KEY = get_env_variable("SECRET_KEY", "")
+SECRET_KEY = env("SECRET_KEY")
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
@@ -60,7 +65,7 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 # DATABASES #
 #############
 
-DATABASES = {"default": dj_database_url.parse(get_env_variable("DATABASE_URL"))}
+DATABASES = {"default": env.db()}
 
 
 #########
@@ -77,26 +82,28 @@ CACHE_MIDDLEWARE_KEY_PREFIX = PROJECT_DIRNAME
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
-STATIC_URL = get_env_variable("STATIC_URL", "/static/")
+STATIC_URL = env("STATIC_URL")
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # This is usually not used in a dev env, hence the default value
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = get_env_variable("STATIC_ROOT", "/tmp/static")
+STATIC_ROOT = env("STATIC_ROOT")
 
-DJANGO_VITE_ASSETS_PATH = os.path.join(BASE_DIR, "{{ cookiecutter.project_slug }}/static/assets")
-STATICFILES_DIRS = get_env_variable("STATICFILES_DIRS", DJANGO_VITE_ASSETS_PATH).split(",")
+# django-vite needs this to be set, but it’s only used in development
+DJANGO_VITE_ASSETS_PATH = ""
+
+STATICFILES_DIRS = [BASE_DIR / "{{ cookiecutter.project_slug }}/static"]
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
-MEDIA_URL = get_env_variable("MEDIA_URL", "/media/")
+MEDIA_URL = env("MEDIA_URL")
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = get_env_variable("MEDIA_ROOT", "/tmp/static/media")
+MEDIA_ROOT = env("MEDIA_ROOT")
 
 # Package/module name to import the root urlpatterns from for the project.
 ROOT_URLCONF = "%s.config.urls" % PROJECT_DIRNAME
@@ -105,9 +112,7 @@ WSGI_APPLICATION = "{{ cookiecutter.project_slug }}.config.wsgi.application"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [
-            os.path.join(BASE_DIR, "{{ cookiecutter.project_slug }}", "templates")
-        ],
+        "DIRS": [BASE_DIR / "{{ cookiecutter.project_slug }}" / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -204,12 +209,12 @@ LOGGING = {
 # E-MAILING #
 #############
 
-EMAIL_HOST = get_env_variable("EMAIL_HOST", "localhost")
-EMAIL_PORT = int(get_env_variable("EMAIL_PORT", "25"))
-DEFAULT_FROM_EMAIL = get_env_variable("EMAIL_FROM", "webmaster@localhost")
+EMAIL_HOST = env("EMAIL_HOST")
+EMAIL_PORT = env.int("EMAIL_PORT")
+DEFAULT_FROM_EMAIL = env("EMAIL_FROM")
+{%- if cookiecutter.use_wagtail == 'y' -%}
 
 
-{% if cookiecutter.use_wagtail == 'y' -%}
 ###########
 # WAGTAIL #
 ###########

@@ -1,5 +1,5 @@
 module.exports = {
-  content: ['./../backend/{{ cookiecutter.project_slug }}/**/*.html'],
+  content: ['./../{{ cookiecutter.project_slug }}/**/*.html'],
   theme: {
     fontFamily: {
       'sans': ['Roboto', 'sans-serif'],

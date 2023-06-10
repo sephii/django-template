@@ -1,0 +1,86 @@
+{% if cookiecutter.packaging == "poetry" %}
+[tool.poetry]
+name = "{{ cookiecutter.project_slug }}"
+version = "0.1.0"
+description = ""
+authors = ["{{ cookiecutter.author_name }} <{{ cookiecutter.author_email }}>"]
+packages = [
+  { include = "{{ cookiecutter.project_slug }}", from = "src" },
+]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+{% if cookiecutter.use_wagtail == "y" %}wagtail = "^4.1.1"{% endif %}
+django = "^4.2.0"
+django-environ = "^0.10.0"
+psycopg2-binary = "^2.9.0"
+django-vite = "^2.0.2"
+
+[tool.poetry.group.dev.dependencies]
+django-extensions = "^3.2.1"
+django-debug-toolbar = "^3.8.1"
+pytest = "^7.2.0"
+pytest-cov = "^4.0.0"
+pytest-django = "^4.5.2"
+ipython = "^8.7.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+{% else %}
+[project]
+name = "{{ cookiecutter.project_slug }}"
+version = "0.1.0"
+description = ""
+authors = [
+  {"name" = "{{ cookiecutter.author_name }}", "email" = "{{ cookiecutter.author_email }}"},
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build]
+packages = [
+  "src/{{ cookiecutter.project_slug }}",
+]
+artifacts = [
+  "*.mo",
+]
+sources = ["src"]
+
+[tool.black]
+include = '\.pyi?$'
+exclude = '''
+(
+     /\..*
+    |/node_modules/
+    |/.devenv/
+    |/result/
+)
+'''
+{% endif %}
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "{{ cookiecutter.project_slug }}.config.settings.test"
+python_files = ["test*.py", "tests.py", "tests/*.py"]
+norecursedirs = ["node_modules", ".git", ".devenv"]
+addopts = "--ds={{ cookiecutter.project_slug }}.config.settings.test --cov-report=term --cov={{ cookiecutter.project_slug }} --no-cov-on-fail"
+django_find_project = false
+pythonpath = "src"
+
+[tool.ruff]
+# https://beta.ruff.rs/docs/rules/
+select = ["E", "F", "I", "T10"]
+ignore = ["E501"]
+exclude = ["node_modules", ".git", ".devenv"]
+
+[tool.ruff.per-file-ignores]
+"src/{{ cookiecutter.project_slug }}/config/settings/*.py" = ["F405", "F403"]
+
+[tool.ruff.isort]
+known-first-party = ["{{ cookiecutter.project_slug }}"]
+section-order = ["future", "standard-library", "django", "third-party", "first-party", "local-folder"]
+
+[tool.ruff.isort.sections]
+"django" = ["django"]

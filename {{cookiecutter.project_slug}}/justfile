@@ -1,0 +1,12 @@
+# Run the webserver
+run:
+  devenv up
+
+# Run the tests
+test:
+  pytest src/tests
+
+# Extract message files
+messages:
+  python -m django makemessages -l de -l en -d django
+  python -m django makemessages -l de -l en -d djangojs --ignore node_modules

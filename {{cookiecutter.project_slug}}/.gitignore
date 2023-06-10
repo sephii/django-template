@@ -1,9 +1,10 @@
-__pycache__
 *.pyc
+__pycache__
+node_modules
 /.coverage
+/.devenv
 /.pytest_cache
 /.envrc.local
-/frontend/.vite
-/node_modules
+/src/assets/.vite
 /static/dist/*
 /result
