@@ -103,3 +103,57 @@ direnv reload
 You might get an error when running `npm` related to the presence of
 `node_modules/.package-lock.json`. If that’s the case, remove the `node_modules`
 symlink and try again.
+
+### Deploy to a NixOS server
+
+Use the provided `nixos.nix` NixOS module. Here is a sample `flake.nix` file
+using the provided NixOS module:
+
+``` nix
+{
+  inputs.myproject.url = "github:exampleorg/exampleproject";
+
+  outputs = { self, nixpkgs, myproject }: let
+    system = "x86_64-linux";
+    pkgs = import nixpkgs {
+      inherit system;
+      overlays = [ myproject.overlays.default ];
+    };
+  in {
+    nixosConfigurations.myserver = nixpkgs.lib.nixosSystem {
+      inherit system;
+      modules = [
+        myproject.nixosModules.default
+        {
+          services.myproject = {
+            enable = true;
+            package = pkgs.python3.pkgs.myproject;
+            staticFilesPackage = pkgs.myproject-static;
+            user = "myproject";
+            group = "myproject";
+
+            appServer = {
+              enable = true;
+            };
+
+            webServer = {
+              enable = true;
+              hostName = "www.example.com";
+            };
+
+            environmentFiles = [
+              # Use a secure way to create a file with your database url and secret key, eg. https://github.com/ryantm/agenix
+            ];
+          };
+
+          services.postgresql = {
+            enable = true;
+            ensureDatabases = [ "myproject" ];
+            ensureUsers = [{ name = "myproject"; ensurePermissions = { "DATABASE myproject" = "ALL PRIVILEGES"; }; }];
+          };
+        }
+      ];
+    };
+  };
+}
+```

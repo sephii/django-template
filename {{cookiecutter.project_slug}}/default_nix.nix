@@ -13,4 +13,6 @@
     mkdir -p src/{{ cookiecutter.project_slug }}/static
     cp -r ${assetsStatic}/* src/{{ cookiecutter.project_slug }}/static
   '';
+
+  passthru = { inherit (pythonPackages) python; };
 }
