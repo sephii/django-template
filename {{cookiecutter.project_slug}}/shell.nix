@@ -22,7 +22,8 @@ in devenv.lib.mkShell {
     process.implementation = "overmind";
 
     processes = {
-      runserver.exec = "${coreutils}/bin/timeout 10 ${bash}/bin/bash -c 'until [ -S $DEVENV_STATE/postgres/.s.PGSQL.5432 ]; do sleep 1; done' && ${pythonDevEnv.interpreter} -m django runserver";
+      runserver.exec = "${coreutils}/bin/timeout 30 ${bash}/bin/bash -c 'until pg_isready -d {{ cookiecutter.project_slug }}; do sleep 1; done' && ${pythonDevEnv.interpreter} -m django runserver";
+
       vite.exec = "vite";
     };
 
