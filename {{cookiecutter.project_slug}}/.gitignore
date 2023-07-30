@@ -8,3 +8,4 @@ node_modules
 /src/assets/.vite
 /static/dist/*
 /result
+/.pre-commit-config.yaml
