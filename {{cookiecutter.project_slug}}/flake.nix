@@ -9,6 +9,9 @@
   outputs = inputs@{ self, nixpkgs, flake-utils, devenv }:
     flake-utils.lib.eachDefaultSystem (system:
       let
+        # Change this to adapt the Python version used in the development environment and when collecting static files
+        python = pkgs': pkgs'.python3;
+
         pkgs = import nixpkgs {
           inherit system;
           overlays = [ overlay ];
@@ -58,8 +61,8 @@
           ];
 
           {{ cookiecutter.project_slug }}-static = final.stdenv.mkDerivation {
-            pname = "${final.python3.pkgs.{{ cookiecutter.project_slug }}.pname}-static";
-            version = final.python3.pkgs.{{ cookiecutter.project_slug }}.version;
+            pname = "${(python final).pkgs.{{ cookiecutter.project_slug }}.pname}-static";
+            version = (python final).pkgs.{{ cookiecutter.project_slug }}.version;
             src = ./.;
             buildPhase = ''
               export STATIC_ROOT=$out
@@ -67,26 +70,25 @@
               export DJANGO_SETTINGS_MODULE={{ cookiecutter.project_slug }}.config.settings.base
               export SECRET_KEY=dummy
               export DATABASE_URL=sqlite:////dev/null
-              ${final.python3.withPackages (ps: [ ps.{{ cookiecutter.project_slug }} ])}/bin/python -m django collectstatic --noinput
+              ${((python final).withPackages (ps: [ ps.{{ cookiecutter.project_slug }} ])).interpreter} -m django collectstatic --noinput
             '';
             phases = [ "buildPhase" ];
           };
         });
-
-        python = pkgs.python3;
       in rec {
         overlays.default = overlay;
 
         packages = rec {
-          default = python.pkgs.{{ cookiecutter.project_slug }};
+          default = (python pkgs).{{ cookiecutter.project_slug }};
           static = pkgs.{{ cookiecutter.project_slug }}-static;
         };
 
         checks = packages;
 
         devShells.default = pkgs.callPackage ./shell.nix {
-          inherit devenv inputs pkgs python;
+          inherit devenv inputs pkgs;
           inherit (assets) nodeDependencies;
+          python = python pkgs;
         };
       });
 }

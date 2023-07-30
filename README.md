@@ -23,15 +23,13 @@ setup in 40 seconds! See for yourself:
 
 To create a new project using this template, you will first need to install:
 
-* [cookiecutter](https://github.com/cookiecutter/cookiecutter)
-* [Nix](https://nixos.org/)
+* [Nix](https://github.com/DeterminateSystems/nix-installer)
 * [Direnv](https://github.com/direnv/direnv)
-* [Devenv](https://devenv.sh/)
 
 Once you have these tools installed, run:
 
 ```sh
-cookiecutter gh:sephii/django-template
+nix run nixpkgs#cookiecutter gh:sephii/django-template
 ```
 
 Make sure to initialize a git repository in your newly created project directory
@@ -51,18 +49,18 @@ If you’re using Nix packaging, make the necessary changes to `requirements.nix
 or `requirements_dev.nix` (search for packages with `nix search nixpkgs mypackage`)
 and run `direnv reload`.
 
-### Use a specific Python version
+### Use a specific Python version for development
 
 Open `flake.nix` and change the Python package used. For example to use Python 3.11, change:
 
 ```
-python = pkgs.python3;
+python = pkgs': pkgs'.python3;
 ```
 
 To:
 
 ```
-python = pkgs.python311;
+python = pkgs': pkgs'.python311;
 ```
 
 ### Use a specific version of a package
