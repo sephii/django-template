@@ -152,7 +152,7 @@ INSTALLED_APPS = (
     "wagtail.images",
     "wagtail.search",
     "wagtail.admin",
-    "wagtail.core",
+    "wagtail",
     "modelcluster",
     "taggit",
     {% endif -%}
@@ -212,7 +212,7 @@ LOGGING = {
 EMAIL_HOST = env("EMAIL_HOST")
 EMAIL_PORT = env.int("EMAIL_PORT")
 DEFAULT_FROM_EMAIL = env("EMAIL_FROM")
-{%- if cookiecutter.use_wagtail == 'y' -%}
+{%- if cookiecutter.use_wagtail == 'y' %}
 
 
 ###########
@@ -221,8 +221,8 @@ DEFAULT_FROM_EMAIL = env("EMAIL_FROM")
 
 WAGTAIL_SITE_NAME = "{{ cookiecutter.project_name }}"
 WAGTAILSEARCH_BACKENDS = {
-    'default': {
-        'BACKEND': 'wagtail.search.backends.database',
+    "default": {
+        "BACKEND": "wagtail.search.backends.database",
     }
 }
 {% endif -%}
