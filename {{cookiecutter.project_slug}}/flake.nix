@@ -3,94 +3,34 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.05";
     flake-utils.url = "github:numtide/flake-utils";
-    devenv.url = "github:cachix/devenv";
+    # Workaround https://github.com/cachix/devenv/issues/756#issuecomment-1684049113
+    devenv.url = "github:cachix/devenv/9ba9e3b908a12ddc6c43f88c52f2bf3c1d1e82c1";
   };
 
   outputs = inputs@{ self, nixpkgs, flake-utils, devenv }:
-    let
-      # The overlay allows to add this package to the `pkgs` of another flake like so:
-      # pkgs = import nixpkgs {
-      #   overlays = [ thisFlake.overlay ];
-      # };
-      overlay = (final: prev: {
-        pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
-          {% if cookiecutter.packaging == "nix" %}
-          (python-final: python-prev: let
-            drvWithDeps = requirements: (final.callPackage ./. {
-              inherit (python-final) buildPythonPackage;
-              pythonPackages = python-final;
-              assetsStatic = (final.callPackage ./src/assets { }).static;
-            }).overridePythonAttrs (old: {
-              propagatedBuildInputs = (
-                old.propagatedBuildInputs or []
-              ) ++ (
-                import requirements { pythonPackages = python-final; }
-              );
-            });
-          in {
-            {{ cookiecutter.project_slug }} = drvWithDeps ./requirements.nix;
-            {{ cookiecutter.project_slug }}-dev = drvWithDeps ./requirements_dev.nix;
-
-            # django is still Django 3.x in NixOS 23.05 channel
-            django = python-final.django_4;
-          })
-          {% elif cookiecutter.packaging == "poetry" %}
-          (python-final: python-prev: {
-            {{ cookiecutter.project_slug }} = final.callPackage ./. {
-              inherit (python-final) python;
-              assetsStatic = (final.callPackage ./src/assets { }).static;
-            };
-            {{ cookiecutter.project_slug }}-dev = (final.callPackage ./. {
-              inherit (python-final) python;
-              assetsStatic = (final.callPackage ./src/assets { }).static;
-              groups = [ "dev" ];
-            });
-          })
-          {% endif %}
-        ];
-
-        {{ cookiecutter.project_slug }}-static = final.stdenv.mkDerivation {
-          pname = "${(python final).pkgs.{{ cookiecutter.project_slug }}.pname}-static";
-          version = (python final).pkgs.{{ cookiecutter.project_slug }}.version;
-          src = ./.;
-          buildPhase = ''
-            export STATIC_ROOT=$out
-            export MEDIA_ROOT=/dev/null
-            export DJANGO_SETTINGS_MODULE={{ cookiecutter.project_slug }}.config.settings.base
-            export SECRET_KEY=dummy
-            export DATABASE_URL=sqlite:////dev/null
-            export ALLOWED_HOSTS=""
-            ${((python final).withPackages (ps: [ ps.{{ cookiecutter.project_slug }} ])).interpreter} -m django collectstatic --noinput
-          '';
-          phases = [ "buildPhase" ];
-        };
-      });
-
-      # Change this to adapt the Python version used in the development environment and when collecting static files
-      python = pkgs': pkgs'.python3;
-    in flake-utils.lib.eachDefaultSystem (system:
+    flake-utils.lib.eachDefaultSystem (system:
       let
-        pkgs = import nixpkgs {
-          inherit system;
-          overlays = [ overlay ];
-        };
+        pkgs = nixpkgs.legacyPackages.${system};
 
         assets = pkgs.callPackage ./src/assets { };
+
+        python = pkgs.python3.override {
+          packageOverrides = import ./overrides.nix { assetsStatic = assets.static; };
+          self = python;
+        };
       in rec {
-        packages = rec {
-          default = (python pkgs).{{ cookiecutter.project_slug }};
-          static = pkgs.{{ cookiecutter.project_slug }}-static;
+        packages = {
+          default = python.pkgs.{{ cookiecutter.project_slug }};
+          static = python.pkgs.callPackage ./static.nix {};
         };
 
         checks = packages;
 
-        devShells.default = pkgs.callPackage ./shell.nix {
+        devShells.default = python.pkgs.callPackage ./shell.nix {
           inherit devenv inputs pkgs;
           inherit (assets) nodeDependencies;
-          python = python pkgs;
         };
       }) // {
-        overlays.default = overlay;
         nixosModules.default = import ./nixos.nix;
       };
 }

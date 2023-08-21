@@ -1,18 +1,23 @@
-{ buildPythonPackage, pythonPackages, assetsStatic }: buildPythonPackage {
+{ buildPythonPackage, pythonPackages, gettext, assetsStatic, devDependencies ? false }: buildPythonPackage {
   src = ./.;
   pname = "{{ cookiecutter.project_slug }}";
   version = "0.1.0";
   format = "pyproject";
 
-  buildInputs = [
-    pythonPackages.hatchling
-  ];
+  buildInputs = [ pythonPackages.hatchling gettext ];
 
-  # Include the compiled assets in the package
+  propagatedBuildInputs = import (if !devDependencies then ./requirements.nix else ./requirements_dev.nix) {
+    inherit pythonPackages;
+  };
+
+  passthru.python = pythonPackages.python;
+
+  # Include the compiled assets in the package and compile messages
   configurePhase = ''
     mkdir -p src/{{ cookiecutter.project_slug }}/static
     cp -r ${assetsStatic}/* src/{{ cookiecutter.project_slug }}/static
-  '';
 
-  passthru = { inherit (pythonPackages) python; };
+    export PATH=$PATH:${gettext}/bin
+    python -m django compilemessages
+  '';
 }
