@@ -13,12 +13,12 @@ in {
 
     user = lib.mkOption {
       type = lib.types.str;
-      example = "{{ cookiecutter.project_slug }}";
+      default = "{{ cookiecutter.project_slug }}";
     };
 
     group = lib.mkOption {
       type = lib.types.str;
-      example = "{{ cookiecutter.project_slug }}";
+      default = "{{ cookiecutter.project_slug }}";
     };
 
     environmentFiles = lib.mkOption {
@@ -84,6 +84,8 @@ in {
           };
         };
       };
+
+      default = { };
     };
 
     webServer = lib.mkOption {
@@ -94,9 +96,13 @@ in {
             default = false;
           };
 
-          hostName = lib.mkOption { type = lib.types.str; };
+          hostName = lib.mkOption {
+            type = lib.types.str;
+          };
         };
       };
+
+      default = { };
     };
   };
 
@@ -113,112 +119,117 @@ in {
     environmentList = lib.mapAttrsToList (name: value: "${name}=${lib.escapeShellArg value}") environment;
 
     dependencyEnv = cfg.package.python.withPackages (ps: [ ps.{{ cookiecutter.project_slug }} ]);
-  in lib.mkIf cfg.enable ({
-    services.{{ cookiecutter.project_slug }}.manageScript = pkgs.writeShellScriptBin "{{ cookiecutter.project_slug }}" ''
-      sudo() {
-        if [[ "$USER" != ${cfg.user} ]]; then
-          exec /run/wrappers/bin/sudo -u ${cfg.user} --preserve-env "$@"
-        else
-          exec "$@"
-        fi
-      }
+  in lib.mkIf cfg.enable (lib.mkMerge [
+    {
+      services.{{ cookiecutter.project_slug }}.appServer.socket = "/run/gunicorn_{{ cookiecutter.project_slug }}/gunicorn.sock";
 
-      export ${lib.concatStringsSep " " environmentList}
-
-      set -a
-      ${lib.concatStringsSep "\n"
-      (map (file: "source ${file}") cfg.environmentFiles)}
-      set +a
-
-      sudo ${dependencyEnv.interpreter} -m django "$@"
-    '';
-
-    services.{{ cookiecutter.project_slug }}.appServer.socket =
-      lib.mkIf cfg.appServer.enable "/run/gunicorn_{{ cookiecutter.project_slug }}/gunicorn.sock";
-
-    systemd.services.{{ cookiecutter.project_slug }}-gunicorn = lib.mkIf cfg.appServer.enable (let
-      dependencyEnv = cfg.package.python.withPackages
-        (ps: [ ps.gunicorn ps.gevent ps.{{ cookiecutter.project_slug }} ]);
-    in {
-      wantedBy = [ "multi-user.target" ];
-
-      after = [ "{{ cookiecutter.project_slug }}-maintenance.service" ];
-
-      serviceConfig = {
-        User = cfg.user;
-        Group = cfg.group;
-        RuntimeDirectory = "gunicorn_{{ cookiecutter.project_slug }}";
-        RuntimeDirectoryPreserve = true;
-        # https://docs.gunicorn.org/en/stable/deploy.html#systemd
-        ExecReload = "${pkgs.coreutils}/bin/kill -s HUP $MAINPID";
-        KillMode = "mixed";
-        Environment = environmentList;
-        EnvironmentFile = cfg.environmentFiles;
-        PrivateTmp = "true";
-      };
-
-      # TODO create a symlink to this script and call it in `serviceConfig.ExecStart` and set `reloadTriggers` to reload
-      # gunicorn instead of stopping and starting it
-      script = ''
-        ${dependencyEnv.interpreter} -m gunicorn \
-          --name gunicorn-{{ cookiecutter.project_slug }} \
-          --pythonpath ${dependencyEnv}/${dependencyEnv.python.sitePackages} \
-          --bind unix:${cfg.appServer.socket} \
-          --workers ${toString cfg.appServer.nbWorkers} \
-          --worker-class gevent \
-          ${cfg.appServer.wsgiModule}:application
-      '';
-    });
-
-    systemd.services.{{ cookiecutter.project_slug }}-maintenance = {
-      wantedBy = [ "multi-user.target" ];
-
-      after = [ "network.target" "postgresql.service" ];
-
-      serviceConfig = {
-        Type = "oneshot";
-        User = cfg.user;
-        Group = cfg.group;
-        Environment = environmentList;
-        EnvironmentFile = cfg.environmentFiles;
-      };
-
-      script = ''
-        ${cfg.manageScript} migrate --noinput
-      '';
-    };
-
-    services.caddy = lib.mkIf (cfg.webServer.enable && cfg.appServer.enable) {
-      enable = cfg.webServer.enable;
-      virtualHosts.${cfg.webServer.hostName}.extraConfig = ''
-        header -Server
-
-        handle_path /static/* {
-          header -ETag
-          root * ${cfg.staticFilesPackage}
-          file_server
+      services.{{ cookiecutter.project_slug }}.manageScript = pkgs.writeShellScriptBin "{{ cookiecutter.project_slug }}" ''
+        sudo() {
+          if [[ "$USER" != ${cfg.user} ]]; then
+            exec /run/wrappers/bin/sudo -u ${cfg.user} --preserve-env "$@"
+          else
+            exec "$@"
+          fi
         }
 
-        reverse_proxy * unix/${cfg.appServer.socket}
+        export ${lib.concatStringsSep " " environmentList}
+
+        set -a
+        ${lib.concatStringsSep "\n"
+        (map (file: "source ${file}") cfg.environmentFiles)}
+        set +a
+
+        sudo ${dependencyEnv.interpreter} -m django "$@"
       '';
-    };
 
-    systemd.tmpfiles.rules = [
-      "d ${cfg.mediaRoot} 0750 ${cfg.user} ${cfg.group} - -"
-    ];
+      systemd.services.{{ cookiecutter.project_slug }}-maintenance = {
+        wantedBy = [ "multi-user.target" ];
 
-    environment.systemPackages = [ cfg.manageScript ];
+        after = [ "network.target" "postgresql.service" ];
 
-    # Allow the web server to browse media files
-    users.users = lib.mkIf cfg.webServer.enable {
-      ${config.services.caddy.user}.extraGroups = [ cfg.group ];
-    } // {
-      ${cfg.user} = {
+        serviceConfig = {
+          Type = "oneshot";
+          User = cfg.user;
+          Group = cfg.group;
+          Environment = environmentList;
+          EnvironmentFile = cfg.environmentFiles;
+        };
+
+        script = ''
+          ${cfg.manageScript}/bin/{{ cookiecutter.project_slug }} migrate --noinput
+        '';
+      };
+
+      systemd.tmpfiles.rules = [
+        "d ${cfg.mediaRoot} 0750 ${cfg.user} ${cfg.group} - -"
+      ];
+
+      environment.systemPackages = [ cfg.manageScript ];
+
+      users.users.${cfg.user} = {
         isSystemUser = true;
         group = cfg.group;
       };
-    };
 
-    users.groups.${cfg.group} = { };
-  });
+      users.groups.${cfg.group} = { };
+    }
+
+    # App server
+    (lib.mkIf cfg.appServer.enable {
+      systemd.services.{{ cookiecutter.project_slug }}-gunicorn = let
+        dependencyEnv = cfg.package.python.withPackages
+          (ps: [ ps.gunicorn ps.gevent ps.{{ cookiecutter.project_slug }} ]);
+      in {
+        wantedBy = [ "multi-user.target" ];
+
+        after = [ "{{ cookiecutter.project_slug }}-maintenance.service" ];
+
+        serviceConfig = {
+          User = cfg.user;
+          Group = cfg.group;
+          RuntimeDirectory = "gunicorn_{{ cookiecutter.project_slug }}";
+          RuntimeDirectoryPreserve = true;
+          # https://docs.gunicorn.org/en/stable/deploy.html#systemd
+          ExecReload = "${pkgs.coreutils}/bin/kill -s HUP $MAINPID";
+          KillMode = "mixed";
+          Environment = environmentList;
+          EnvironmentFile = cfg.environmentFiles;
+          PrivateTmp = "true";
+        };
+
+        # TODO create a symlink to this script and call it in `serviceConfig.ExecStart` and set `reloadTriggers` to reload
+        # gunicorn instead of stopping and starting it
+        script = ''
+          ${dependencyEnv.interpreter} -m gunicorn \
+            --name gunicorn-{{ cookiecutter.project_slug }} \
+            --pythonpath ${dependencyEnv}/${dependencyEnv.python.sitePackages} \
+            --bind unix:${cfg.appServer.socket} \
+            --workers ${toString cfg.appServer.nbWorkers} \
+            --worker-class gevent \
+            ${cfg.appServer.wsgiModule}:application
+        '';
+      };
+    })
+
+    # Web server
+    (lib.mkIf (cfg.webServer.enable && cfg.appServer.enable) {
+      services.caddy = {
+        enable = cfg.webServer.enable;
+        virtualHosts.${cfg.webServer.hostName}.extraConfig = ''
+          header -Server
+
+          handle_path /static/* {
+            header -ETag
+            root * ${cfg.staticFilesPackage}
+            file_server
+          }
+
+          reverse_proxy * unix/${cfg.appServer.socket}
+        '';
+      };
+
+      # Allow the web server to browse media files
+      users.users.${config.services.caddy.user}.extraGroups = [ cfg.group ];
+    })
+  ]);
 }
