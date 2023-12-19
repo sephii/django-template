@@ -1,4 +1,4 @@
-{ black, coreutils, bash, python, devenv, inputs, just, node2nix, nodejs, pkgs, ruff, nodeDependencies }: let
+{ python, devenv, inputs, pkgs, nodeDependencies }: let
   pythonDevEnv = python.withPackages (ps: ps.{{ cookiecutter.project_slug }}-dev.propagatedBuildInputs);
 in devenv.lib.mkShell {
   inherit inputs pkgs;
@@ -22,7 +22,7 @@ in devenv.lib.mkShell {
     process.implementation = "overmind";
 
     processes = {
-      runserver.exec = "${coreutils}/bin/timeout 30 ${bash}/bin/bash -c 'until pg_isready -d {{ cookiecutter.project_slug }}; do sleep 1; done' && ${pythonDevEnv.interpreter} -m django runserver";
+      runserver.exec = "${pkgs.coreutils}/bin/timeout 30 ${pkgs.bash}/bin/bash -c 'until pg_isready -d {{ cookiecutter.project_slug }}; do sleep 1; done' && ${pythonDevEnv.interpreter} -m django runserver";
 
       vite.exec = "vite";
     };
@@ -39,15 +39,16 @@ in devenv.lib.mkShell {
 
       node2nix.exec = ''
         cd $DEVENV_ROOT/src/assets
-        ${node2nix}/bin/node2nix --development -l package-lock.json -c nix/default.nix -o nix/node-packages.nix -e nix/node-env.nix
+        ${pkgs.node2nix}/bin/node2nix --development -l package-lock.json -c nix/default.nix -o nix/node-packages.nix -e nix/node-env.nix
       '';
     };
 
     packages = [
-      black
-      just
-      nodejs
-      ruff
+      pkgs.gettext
+      pkgs.black
+      pkgs.just
+      pkgs.nodejs
+      pkgs.ruff
       pythonDevEnv
     ];
 
@@ -55,7 +56,7 @@ in devenv.lib.mkShell {
       black.enable = true;
       ruff = {
         enable = true;
-        entry = pkgs.lib.mkForce "${ruff}/bin/ruff --fix";
+        entry = pkgs.lib.mkForce "${pkgs.ruff}/bin/ruff --fix";
       };
       nixfmt.enable = true;
     };

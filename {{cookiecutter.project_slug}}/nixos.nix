@@ -218,9 +218,19 @@ in {
         virtualHosts.${cfg.webServer.hostName}.extraConfig = ''
           header -Server
 
-          handle_path /static/* {
-            header -ETag
+          handle_path ${cfg.staticUrl}* {
+            header {
+              -ETag
+              -Last-Modified
+              Cache-Control max-age=31536000
+            }
+
             root * ${cfg.staticFilesPackage}
+            file_server
+          }
+
+          handle_path ${cfg.mediaUrl}* {
+            root * ${cfg.mediaRoot}
             file_server
           }
 

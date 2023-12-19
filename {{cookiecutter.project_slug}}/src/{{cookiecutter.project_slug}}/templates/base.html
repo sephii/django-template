@@ -8,6 +8,7 @@
     <title>{% block title %}{% endblock %}</title>
 
     {% vite_hmr_client %}
+    {% vite_asset 'js/index.js' %}
   </head>
   <body>
     {% block body %}
@@ -15,7 +16,5 @@
       <h1>It works! 🎉</h1>
     </div>
     {% endblock %}
-
-    {% vite_asset 'js/index.js' %}
   </body>
 </html>

@@ -13,7 +13,7 @@ To get a better idea how the whole thing works, check these files:
 
 ## Running it
 
-To run this project locally, make sure [Nix](https://nixos.org/), [devenv](https://devenv.sh/) and [direnv](https://github.com/direnv/direnv) are installed.
+To run this project locally, make sure [Nix](https://nixos.org/) and [direnv](https://github.com/direnv/direnv) are installed.
 
 Then run `direnv allow` and start the different services by running:
 
