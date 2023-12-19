@@ -37,10 +37,8 @@ def use_nix_packaging():
 
 
 def lock_npm():
-    # node2nix doesn’t support lockfile version 3 used by nodejs 18 so we need
-    # to lock the dependencies using node 16
     subprocess.run(
-        ["nix", "shell", "--impure", "nixpkgs#nodejs_16", "-c", "npm", "i", "--package-lock-only"],
+        ["nix", "shell", "--impure", "nixpkgs#nodejs_20", "-c", "npm", "i", "--lockfile-version", "2", "--package-lock-only"],
         check=True,
         cwd="./src/assets",
         env={

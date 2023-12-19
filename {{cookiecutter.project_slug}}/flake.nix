@@ -1,7 +1,7 @@
 {
   description = "{{ cookiecutter.project_name }}";
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
     flake-utils.url = "github:numtide/flake-utils";
     # Workaround https://github.com/cachix/devenv/issues/756#issuecomment-1684049113
     devenv.url = "github:cachix/devenv/9ba9e3b908a12ddc6c43f88c52f2bf3c1d1e82c1";
