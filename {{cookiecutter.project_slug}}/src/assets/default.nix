@@ -1,8 +1,13 @@
-{ stdenv, callPackage, nodePackages, nodejs, writeShellScriptBin }:
+{
+  stdenv,
+  callPackage,
+  nodejs,
+}:
 let
   generated = callPackage ./nix { inherit nodejs; };
   nodeDependencies = generated.nodeDependencies;
-in {
+in
+{
   inherit nodeDependencies;
 
   static = stdenv.mkDerivation {

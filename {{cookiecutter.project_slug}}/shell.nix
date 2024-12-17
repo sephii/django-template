@@ -1,6 +1,8 @@
-{ python, devenv, inputs, pkgs, nodeDependencies }: let
+{ python, devenv, inputs, pkgs, nodeDependencies }:
+let
   pythonDevEnv = python.withPackages (ps: ps.{{ cookiecutter.project_slug }}-dev.propagatedBuildInputs);
-in devenv.lib.mkShell {
+in
+devenv.lib.mkShell {
   inherit inputs pkgs;
 
   modules = [{
@@ -47,7 +49,9 @@ in devenv.lib.mkShell {
       pkgs.gettext
       pkgs.just
       pkgs.nodejs
+      pkgs.pyright
       pkgs.ruff
+      pkgs.ruff-lsp
       pythonDevEnv
     ];
 
