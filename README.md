@@ -3,7 +3,7 @@
 This is a Django project template preconfigured with:
 
 * Vital dev tools ([django-debug-toolbar](https://github.com/jazzband/django-debug-toolbar/), [django-extensions](https://github.com/django-extensions/django-extensions/))
-* Linting enforced with pre-commit hooks with [ruff](https://github.com/charliermarsh/ruff) & [Black](https://github.com/psf/black)
+* Linting enforced with pre-commit hooks with [ruff](https://github.com/charliermarsh/ruff)
 * Testing with [pytest](https://docs.pytest.org/) & [pytest-cov](https://pypi.org/project/pytest-cov/)
 * Quick styling with [TailwindCSS](https://tailwindcss.com/)
 * Assets compilation with [Vite](https://vitejs.dev/) (using [django-vite](https://github.com/MrBin99/django-vite))

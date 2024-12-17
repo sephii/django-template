@@ -45,7 +45,6 @@ in devenv.lib.mkShell {
 
     packages = [
       pkgs.gettext
-      pkgs.black
       pkgs.just
       pkgs.nodejs
       pkgs.ruff
@@ -53,12 +52,13 @@ in devenv.lib.mkShell {
     ];
 
     pre-commit.hooks = {
-      black.enable = true;
       ruff = {
         enable = true;
-        entry = pkgs.lib.mkForce "${pkgs.ruff}/bin/ruff --fix";
+        entry = pkgs.lib.mkForce "${pkgs.ruff}/bin/ruff check --fix";
       };
       nixfmt.enable = true;
+
+      ruff-format.enable = true;
     };
   }];
 }
