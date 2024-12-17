@@ -13,4 +13,4 @@ PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
 # Disable logging messages
 LOGGING = {}
 
-DJANGO_VITE_DEV_MODE = True
+DJANGO_VITE = {"default": {"dev_mode": True}}

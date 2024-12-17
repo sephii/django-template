@@ -2,10 +2,11 @@ const path = require('path');
 const { defineConfig } = require('vite');
 
 module.exports = defineConfig({
+  root: path.resolve(__dirname),
   base: "/static/",
   cacheDir: ".vite",
   build: {
-    outDir: "dist",
+    outDir: path.resolve(__dirname, "dist"),
     manifest: true,
     rollupOptions: {
       input: {
