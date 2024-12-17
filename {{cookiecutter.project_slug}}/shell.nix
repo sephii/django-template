@@ -19,7 +19,7 @@ in devenv.lib.mkShell {
     };
 
     # overmind supports input with `overmind c`, allowing us to use pdb
-    process.implementation = "overmind";
+    process.manager.implementation = "overmind";
 
     processes = {
       runserver.exec = "${pkgs.coreutils}/bin/timeout 30 ${pkgs.bash}/bin/bash -c 'until pg_isready -d {{ cookiecutter.project_slug }}; do sleep 1; done' && ${pythonDevEnv.interpreter} -m django runserver";
@@ -56,9 +56,10 @@ in devenv.lib.mkShell {
         enable = true;
         entry = pkgs.lib.mkForce "${pkgs.ruff}/bin/ruff check --fix";
       };
-      nixfmt.enable = true;
 
       ruff-format.enable = true;
+
+      nixfmt-rfc-style.enable = true;
     };
   }];
 }
