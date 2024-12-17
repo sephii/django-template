@@ -3,6 +3,7 @@ __pycache__
 node_modules
 /.coverage
 /.devenv
+/.direnv
 /.pytest_cache
 /.envrc.local
 /src/assets/.vite
