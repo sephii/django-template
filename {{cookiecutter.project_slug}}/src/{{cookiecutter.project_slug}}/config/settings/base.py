@@ -110,6 +110,7 @@ MEDIA_ROOT = env("MEDIA_ROOT")
 # Package/module name to import the root urlpatterns from for the project.
 ROOT_URLCONF = "%s.config.urls" % PROJECT_DIRNAME
 WSGI_APPLICATION = "{{ cookiecutter.project_slug }}.config.wsgi.application"
+ASGI_APPLICATION = "{{ cookiecutter.project_slug }}.config.asgi.application"
 
 TEMPLATES = [
     {
