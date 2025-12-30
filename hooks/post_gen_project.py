@@ -5,18 +5,6 @@ import shutil
 import subprocess
 
 
-# FIXME remove this?
-def generate_blank_locale_files():
-    base_locale_dir = "./src/{{ cookiecutter.project_slug }}/locale/"
-
-    for lang in "{{ cookiecutter.language_list }}".split(","):
-        os.mkdir(os.path.join(base_locale_dir, lang))
-        os.mkdir(os.path.join(base_locale_dir, lang, "LC_MESSAGES"))
-        open(
-            os.path.join(base_locale_dir, lang, "LC_MESSAGES", "django.po"), "w"
-        ).close()
-
-
 def lock_poetry():
     subprocess.run(
         ["nix", "run", "nixpkgs#poetry", "--", "lock"],
@@ -61,7 +49,6 @@ if __name__ == "__main__":
     if "{{ cookiecutter.override_user_model }}" == "n":
         shutil.rmtree("./src/{{ cookiecutter.project_slug }}/accounts")
 
-    # generate_blank_locale_files()
     if "{{ cookiecutter.packaging }}" == "poetry":
         lock_poetry()
         use_poetry_packaging()
