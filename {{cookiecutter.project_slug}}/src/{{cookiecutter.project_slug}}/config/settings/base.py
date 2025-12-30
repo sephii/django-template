@@ -91,12 +91,16 @@ STATIC_URL = env("STATIC_URL")
 # Example: "/home/media/media.lawrence.com/static/"
 STATIC_ROOT = env("STATIC_ROOT")
 
-# django-vite needs this to be set, but it’s only used in development
-DJANGO_VITE_ASSETS_PATH = ""
-
 STATICFILES_DIRS = [BASE_DIR / "{{ cookiecutter.project_slug }}/static"]
 
-STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.ManifestStaticFilesStorage",
+    },
+}
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.

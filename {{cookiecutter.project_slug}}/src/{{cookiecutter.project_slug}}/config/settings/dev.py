@@ -12,3 +12,7 @@ INSTALLED_APPS += ("debug_toolbar", "django_extensions")  # noqa
 LOGGING = {}
 
 DJANGO_VITE = {"default": {"dev_mode": True}}
+
+STORAGES["staticfiles"]["BACKEND"] = (
+    "django.contrib.staticfiles.storage.StaticFilesStorage"
+)
