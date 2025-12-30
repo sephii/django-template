@@ -51,7 +51,6 @@ devenv.lib.mkShell {
       pkgs.nodejs
       pkgs.pyright
       pkgs.ruff
-      pkgs.ruff-lsp
       pythonDevEnv
     ];
 
