@@ -20,8 +20,8 @@ devenv.lib.mkShell {
       mailhog.enable = true;
     };
 
-    # overmind supports input with `overmind c`, allowing us to use pdb
-    process.manager.implementation = "overmind";
+    # This process manager allows interaction with the processes' stdin
+    process.manager.implementation = "mprocs";
 
     processes = {
       runserver.exec = "${pkgs.coreutils}/bin/timeout 30 ${pkgs.bash}/bin/bash -c 'until pg_isready -d {{ cookiecutter.project_slug }}; do sleep 1; done' && ${pythonDevEnv.interpreter} -m django runserver";

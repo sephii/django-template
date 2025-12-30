@@ -31,10 +31,3 @@ You should be able to access http://localhost:8000/ !
 
 Note there is no `manage.py` file. All Django management commands must be run using the
 `dj` command (use `dj --help` to see all available commands).
-
-## How to…
-
-### Use the Python debugger
-
-Insert a `breakpoint()` like you’re used to, and then run `overmind c runserver` to
-attach to the runserver process.
