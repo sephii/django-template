@@ -1,6 +1,8 @@
 # If you wish to have any additional dev packages installed, add them to this list
-{ pythonPackages }: with pythonPackages;
-  (import ./requirements.nix { inherit pythonPackages; }) ++ [
+{ python }:
+with python.pkgs;
+(import ./requirements.nix { inherit python; })
+++ [
   django-extensions
   django-debug-toolbar
   ipython

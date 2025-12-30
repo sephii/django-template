@@ -1,5 +1,5 @@
 # Base dependencies: if you need any other package for your project, add them to this list
-{ pythonPackages }: with pythonPackages; [
+{ python }: with python.pkgs; [
   django
   django-environ
   psycopg2
