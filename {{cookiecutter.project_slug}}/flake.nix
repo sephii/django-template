@@ -1,7 +1,7 @@
 {
   description = "{{ cookiecutter.project_name }}";
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
     flake-utils.url = "github:numtide/flake-utils";
     devenv.url = "github:cachix/devenv";
     devenv.inputs.nixpkgs.follows = "nixpkgs";
@@ -22,7 +22,6 @@
         packages = {
           default = python.pkgs.{{ cookiecutter.project_slug }};
           static = python.pkgs.callPackage ./static.nix {};
-          devenv-up = self.devShells.${system}.default.config.procfileScript;
         };
 
         checks = packages;
