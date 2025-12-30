@@ -1,4 +1,4 @@
-{ python, devenv, inputs, pkgs, nodeDependencies }:
+{ python, devenv, inputs, pkgs, npmDeps }:
 let
   pythonDevEnv = python.withPackages (ps: ps.{{ cookiecutter.project_slug }}-dev.propagatedBuildInputs);
 in
@@ -33,16 +33,11 @@ devenv.lib.mkShell {
       vite.exec = ''
         cd $DEVENV_ROOT/src/assets
         rm -rf ./node_modules
-        ln -s ${nodeDependencies}/lib/node_modules
-        ${nodeDependencies}/bin/vite --clearScreen false "$@"
+        ln -s ${npmDeps}/node_modules
+        ${npmDeps}/node_modules/.bin/vite --clearScreen false "$@"
       '';
 
       dj.exec = ''${pythonDevEnv.interpreter} -m django "$@"'';
-
-      node2nix.exec = ''
-        cd $DEVENV_ROOT/src/assets
-        ${pkgs.node2nix}/bin/node2nix --development -l package-lock.json -c nix/default.nix -o nix/node-packages.nix -e nix/node-env.nix
-      '';
     };
 
     packages = [

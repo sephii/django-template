@@ -29,7 +29,7 @@
 
         devShells.default = python.pkgs.callPackage ./shell.nix {
           inherit devenv inputs pkgs;
-          inherit (assets) nodeDependencies;
+          inherit (assets) npmDeps;
         };
       }) // {
         nixosModules.default = import ./nixos.nix;

@@ -2,13 +2,16 @@
   stdenv,
   callPackage,
   nodejs,
+  importNpmLock,
 }:
 let
-  generated = callPackage ./nix { inherit nodejs; };
-  nodeDependencies = generated.nodeDependencies;
+  npmDeps = importNpmLock.buildNodeModules {
+    npmRoot = ./.;
+    inherit nodejs;
+  };
 in
 {
-  inherit nodeDependencies;
+  inherit npmDeps;
 
   static = stdenv.mkDerivation {
     name = "{{ cookiecutter.project_slug }}-assets";
@@ -17,9 +20,8 @@ in
     buildInputs = [ nodejs ];
     buildPhase = ''
       cd assets
-      ln -s ${nodeDependencies}/lib/node_modules ./node_modules
-      export PATH="${nodeDependencies}/bin:$PATH"
-      npm run build
+      ln -sf ${npmDeps}/node_modules
+      ${npmDeps}/node_modules/.bin/vite build
     '';
     installPhase = ''
       cp -r dist $out/

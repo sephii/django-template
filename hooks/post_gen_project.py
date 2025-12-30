@@ -24,6 +24,7 @@ def lock_poetry():
         cwd="./src",
     )
 
+
 def use_poetry_packaging():
     os.rename("./default_poetry.nix", "./default.nix")
     os.unlink("./default_nix.nix")
@@ -38,35 +39,22 @@ def use_nix_packaging():
 
 def lock_npm():
     subprocess.run(
-        ["nix", "shell", "--impure", "nixpkgs#nodejs_20", "-c", "npm", "i", "--lockfile-version", "2", "--package-lock-only"],
-        check=True,
-        cwd="./src/assets",
-        env={
-            **os.environ,
-            "NIXPKGS_ALLOW_INSECURE": "1"
-        }
-    )
-
-    os.mkdir("./src/assets/nix")
-    subprocess.run(
         [
             "nix",
-            "run",
-            "nixpkgs#nodePackages.node2nix",
-            "--",
-            "--development",
-            "-l",
-            "./package-lock.json",
+            "shell",
+            "--impure",
+            "nixpkgs#nodejs_20",
             "-c",
-            "./nix/default.nix",
-            "-o",
-            "./nix/node-packages.nix",
-            "-e",
-            "./nix/node-env.nix",
+            "npm",
+            "i",
+            "--package-lock-only",
         ],
         check=True,
         cwd="./src/assets",
+        env={**os.environ, "NIXPKGS_ALLOW_INSECURE": "1"},
     )
+
+    os.mkdir("./src/assets/nix")
 
 
 if __name__ == "__main__":
