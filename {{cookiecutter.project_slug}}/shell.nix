@@ -49,7 +49,7 @@ devenv.lib.mkShell {
       pythonDevEnv
     ];
 
-    pre-commit.hooks = {
+    git-hooks.hooks = {
       ruff = {
         enable = true;
         entry = pkgs.lib.mkForce "${pkgs.ruff}/bin/ruff check --fix";
